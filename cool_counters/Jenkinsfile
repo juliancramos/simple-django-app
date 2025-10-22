@@ -3,10 +3,15 @@ pipeline {
 
     stages {
 
-        stage('Instalar dependencias') {
+        stage('Crear entorno virtual e instalar dependencias') {
             steps {
                 dir('cool_counters') {
-                    sh 'pip install --user -r requirements.txt'
+                    sh '''
+                        python3 -m venv venv
+                        . venv/bin/activate
+                        pip install --upgrade pip
+                        pip install -r requirements.txt
+                    '''
                 }
             }
         }
@@ -14,8 +19,11 @@ pipeline {
         stage('Linter') {
             steps {
                 dir('cool_counters') {
-                    sh 'pip install --user pylint'
-                    sh '~/.local/bin/pylint **/*.py || true'
+                    sh '''
+                        . venv/bin/activate
+                        pip install pylint
+                        ~/.local/bin/pylint **/*.py || true
+                    '''
                 }
             }
         }
@@ -23,7 +31,10 @@ pipeline {
         stage('Migraciones') {
             steps {
                 dir('cool_counters') {
-                    sh 'python3 manage.py migrate'
+                    sh '''
+                        . venv/bin/activate
+                        python manage.py migrate
+                    '''
                 }
             }
         }
@@ -31,7 +42,10 @@ pipeline {
         stage('Levantar app') {
             steps {
                 dir('cool_counters') {
-                    sh 'nohup python3 manage.py runserver 0.0.0.0:8000 &'
+                    sh '''
+                        . venv/bin/activate
+                        nohup python manage.py runserver 0.0.0.0:8000 &
+                    '''
                 }
             }
         }
