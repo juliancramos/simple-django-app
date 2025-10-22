@@ -5,26 +5,34 @@ pipeline {
 
         stage('Instalar dependencias') {
             steps {
-                sh 'pip install -r requirements.txt'
+                dir('cool_counters') {
+                    sh 'pip install -r requirements.txt'
+                }
             }
         }
 
         stage('Linter') {
             steps {
-                sh 'pip install pylint'
-                sh 'pylint **/*.py || true'
+                dir('cool_counters') {
+                    sh 'pip install pylint'
+                    sh 'pylint **/*.py || true'
+                }
             }
         }
 
         stage('Migraciones') {
             steps {
-                sh 'python manage.py migrate'
+                dir('cool_counters') {
+                    sh 'python manage.py migrate'
+                }
             }
         }
 
         stage('Levantar app') {
             steps {
-                sh 'python manage.py runserver 0.0.0.0:8000 &'
+                dir('cool_counters') {
+                    sh 'python manage.py runserver 0.0.0.0:8000 &'
+                }
             }
         }
     }
